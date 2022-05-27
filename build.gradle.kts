@@ -27,7 +27,7 @@ dependencies {
     implementation("org.javassist:javassist:3.29.0-GA")
     implementation("com.github.ajalt.mordant:mordant:2.0.0-beta6")
     implementation("dev.virefire.kson:KSON:1.3.1")
-    implementation("dev.virefire.yok:Yok:1.0.3")
+    implementation("dev.virefire.yok:Yok:1.0.4")
     implementation("org.rauschig:jarchivelib:1.2.0")
 }
 
