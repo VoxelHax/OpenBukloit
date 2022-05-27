@@ -18,6 +18,8 @@
 
 <hr>
 
+**Languages: [English](README.md), [Русский](lang/README_RU.md), [Українська](lang/README_UA.md)**
+
 **OpenBukloit** is modern and powerful universal backdoor injector compatible with all Bukkit/Spigot/Paper/etc plugins. Its feature is ability to integrate with absolutely any plugin without the need to modify backdoor every time. Moreover, it provides powerful camouflage engine, which makes nearly impossible to find it without sufficient knowledge or advanced automated tools. OpenBukloit was developed to test the security systems of Minecraft servers, VoxelHax team is not responsible for its misuse.
 
 This is a continuation of **[Bukloit](https://github.com/Rikonardo/Bukloit)** project, taking into account all the problems of the previous project and a completely different approach to development.
@@ -42,7 +44,7 @@ After jar file name you can pass some arguments to configure injector:
 
 | Short Argument | Long Argument | Description                                                                                                                                                                  | Type  |
 |----------------|---------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|-------|
-| -e             | --exploit     | Path to custom .java or compiled .class file, that will be used as backdoor.<br />**By default uses builtin backdoor.**                                                      |
+| -e             | --exploit     | Path to custom .java or compiled .class file, that will be used as backdoor.<br />**By default uses builtin backdoor.**                                                      | Value |
 | -m             | --mode        | Mode. Can be single/multiple.<br />**Default: <ins>multiple</ins>.**<br />In multiple mode, modifies all files in the specified folder. In single - only the specified file. | Value |
 | -i             | --input       | Path to input folder/file (mode dependent).<br />**Default: <ins>in</ins> (<ins>in.jar</ins> if mode is single).**                                                           | Value |
 | -o             | --output      | Path to output folder/file (mode dependent).<br />**Default: <ins>out</ins> (<ins>out.jar</ins> if mode is single).**                                                        | Value |
@@ -110,7 +112,7 @@ But you must know that there are some limitations:
 - Currently, you can't use nested classes, there is must be only one class in exploit file.
 - You shouldn't reference your exploit class inside it, like using it as method params, as a return value or as a field type.
 
-You can take external params from command line, by using %placeholders%:
+You can take external params from command line, by using %placeholders%, thay will be replaced during injection:
 
 ```java
 import org.bukkit.plugin.java.JavaPlugin;
