@@ -3,9 +3,11 @@
 <div align="center"><img alt="Logo" src="logo.png"/></div>
 
 <div align="center">
-    <img alt="Open issues" src="https://img.shields.io/github/issues-raw/Voxelhax/OpenBukloit"/>
-    <img alt="Code size" src="https://img.shields.io/github/languages/code-size/Voxelhax/OpenBukloit"/>
+    <a href="https://github.com/VoxelHax/OpenBukloit/issues"><img alt="Open issues" src="https://img.shields.io/github/issues-raw/VoxelHax/OpenBukloit"/></a>
+    <a href="https://github.com/Voxelhax/OpenBukloit/releases/latest"><img alt="GitHub downloads" src="https://img.shields.io/github/downloads/VoxelHax/OpenBukloit/total"></a>
+    <img alt="Code size" src="https://img.shields.io/github/languages/code-size/VoxelHax/OpenBukloit"/>
     <a href="https://www.codefactor.io/repository/github/voxelhax/openbukloit"><img alt="CodeFactor" src="https://www.codefactor.io/repository/github/voxelhax/openbukloit/badge"/></a>
+    <a href="https://discord.gg/xtaktPTzYp"><img alt="Discord" src="https://img.shields.io/discord/928214827095175199"></a>
 </div>
 
 <div align="center">
