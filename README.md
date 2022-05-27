@@ -16,7 +16,7 @@
 
 <hr>
 
-**OpenBukloit** is modern and powerful universal backdoor injector compatible with all Bukkit/Spigot/Paper/etc plugins. Its feature is ability to integrate with absolutely any plugin without the need to modify backdoor every time. Moreover, it provides powerful camouflage engine, which makes nearly impossible to find it without sufficient knowledge or advanced automated tools. OpenBukloit was developed to test the security systems of Minecraft servers, Voxelhax team is not responsible for its misuse.
+**OpenBukloit** is modern and powerful universal backdoor injector compatible with all Bukkit/Spigot/Paper/etc plugins. Its feature is ability to integrate with absolutely any plugin without the need to modify backdoor every time. Moreover, it provides powerful camouflage engine, which makes nearly impossible to find it without sufficient knowledge or advanced automated tools. OpenBukloit was developed to test the security systems of Minecraft servers, VoxelHax team is not responsible for its misuse.
 
 This is a continuation of **[Bukloit](https://github.com/Rikonardo/Bukloit)** project, taking into account all the problems of the previous project and a completely different approach to development.
 
@@ -27,16 +27,16 @@ This is a continuation of **[Bukloit](https://github.com/Rikonardo/Bukloit)** pr
 - **Powerful camouflage engine, which makes it harder to find backdoor in plugin.**
 
 ## Installation
-In order to use OpenBukloit you must have any Java version installed (but not lower than 8). Then download OpenBukloit jar from [releases tab](https://github.com/Voxelhax/OpenBukloit/releases/latest).
+In order to use OpenBukloit you must have any Java version installed (but not lower than 8). OpenBukloit jar can be downloaded from [releases tab](https://github.com/Voxelhax/OpenBukloit/releases/latest). OpenBukloit jar can be downloaded from releases tab. OpenBukloit does not require any additional actions, just put jar file somewhere and use it from command line.
 
 ## Usage
-To run OpenBukloit, open command prompt in the directory where OpenBukloit jar is located. Then type:
+To run OpenBukloit, open command prompt in the directory where OpenBukloit jar is located and type:
 
 ```sh
 java -jar OpenBukloit.jar
 ```
 
-Here you can pass some arguments to configure injector and backdoor:
+After jar file name you can pass some arguments to configure injector:
 
 | Short Argument | Long Argument | Description                                                                                                                                                                  | Type  |
 |----------------|---------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|-------|
