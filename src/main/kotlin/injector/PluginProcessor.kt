@@ -1,10 +1,10 @@
 package injector
 
+import cli.Logs
 import com.github.ajalt.mordant.rendering.TextColors.brightCyan
 import com.rikonardo.cafebabe.ClassFile
 import com.rikonardo.cafebabe.data.constantpool.*
 import com.rikonardo.cafebabe.data.numbers.BinaryInt
-import findInjectMethod
 import javassist.ClassPool
 import org.yaml.snakeyaml.Yaml
 import utils.*

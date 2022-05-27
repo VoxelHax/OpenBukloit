@@ -1,5 +1,6 @@
 package utils
 
+import cli.Logs
 import dev.virefire.yok.Yok
 import org.rauschig.jarchivelib.ArchiverFactory
 import java.io.File

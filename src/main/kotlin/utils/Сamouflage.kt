@@ -13,8 +13,6 @@ data class Camouflage(
 
 fun splitCamelCase(s: String): List<String> {
     return s.split("(?<!(^|[A-Z]))(?=[A-Z])|(?<!^)(?=[A-Z][a-z])".toRegex())
-        .map { it.replace("$", "") }
-        .filter { it.length > 2 }
 }
 
 fun uniqueName(dict: List<String>, files: List<String>, length: IntRange, depth: Int = 0): String {
@@ -51,7 +49,10 @@ fun calculateCamouflage(file: File): Camouflage {
     val dict = mutableListOf<String>()
     for (f in files) {
         val fileName = f.substringBeforeLast(".")
-        splitCamelCase(fileName).forEach { if (!dict.contains(it)) dict.add(it) }
+        splitCamelCase(fileName)
+            .map { it.replace("$", "") }
+            .filter { it.length > 2 }
+            .forEach { if (!dict.contains(it)) dict.add(it) }
     }
 
     val className = dir + "/" + uniqueName(dict, files.map { it.substringBeforeLast(".") }, 2..3)

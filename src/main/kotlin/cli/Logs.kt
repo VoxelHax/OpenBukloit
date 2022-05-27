@@ -1,4 +1,4 @@
-package utils
+package cli
 
 import com.github.ajalt.mordant.rendering.TextColors.*
 import com.github.ajalt.mordant.rendering.TextStyles.*
