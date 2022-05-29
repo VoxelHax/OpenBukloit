@@ -8,7 +8,7 @@ object Logs {
         private set
     private var taskFinish = false
     fun task(msg: String) {
-        println(" ${brightMagenta("┏")} ${brightGreen(bold(msg))}")
+        println(" ${brightMagenta("╓")} ${brightGreen(bold(msg))}")
         task = true
     }
 
@@ -22,9 +22,9 @@ object Logs {
             if (taskFinish) {
                 taskFinish = false
                 task = false
-                println(" ${brightMagenta("┗")} $message")
+                println(" ${brightMagenta("╙")} $message")
             } else {
-                println(" ${brightMagenta("┃")} $message")
+                println(" ${brightMagenta("║")} $message")
             }
         } else {
             println(message)
