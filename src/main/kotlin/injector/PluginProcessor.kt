@@ -138,6 +138,7 @@ fun runInjectOnJRE(jvm: Path, clazz: String, method: String, insert: String, sav
         }
     }
 
+    process.waitFor()
     val result = process.exitValue()
     if (result != 0) {
         throw Exception("Injection task failed with code: $result")
