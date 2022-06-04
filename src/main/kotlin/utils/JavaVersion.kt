@@ -37,12 +37,15 @@ fun requireJDK(major: Int, minor: Int): Path {
     var currentArchitecture = System.getProperty("os.arch").lowercase()
     if (currentArchitecture == "amd64") currentArchitecture = "x64"
     if (currentArchitecture == "i386") currentArchitecture = "x32"
-    val release = adoptReleases.body.json[0]["binaries"].list?.find {
-        it["os"].string == currentOs &&
-        it["architecture"].string == currentArchitecture &&
-        it["openjdk_impl"].string == "hotspot" &&
-        it["binary_type"].string == "jdk"
-    } ?: throw Exception("No JDK release found for $currentOs $currentArchitecture")
+    val release = adoptReleases.body.json.list!!.mapNotNull { release ->
+        release["binaries"].list?.find {
+            it["os"].string == currentOs &&
+            it["architecture"].string == currentArchitecture &&
+            it["openjdk_impl"].string == "hotspot" &&
+            it["binary_type"].string == "jdk"
+        }
+    }.let { if (it.isNotEmpty()) it[0] else null } ?:
+        throw Exception("No JDK release found for $currentOs $currentArchitecture")
 
     val jdkUrl = release["binary_link"].string!!
     File("./.openbukloit/temp/jdk").mkdirs()
