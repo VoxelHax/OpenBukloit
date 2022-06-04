@@ -4,7 +4,9 @@ import injector.process
 import cli.Logs
 import utils.PreparedExploit
 import utils.loadExploit
+import java.io.ByteArrayOutputStream
 import java.io.File
+import java.io.PrintStream
 import java.nio.file.Paths
 
 fun run(args: Array<String>) {
@@ -15,6 +17,7 @@ fun run(args: Array<String>) {
     val input = findArg("input", "i", args) ?: if (mode == "multiple") "in" else "in.jar"
     val output = findArg("output", "o", args) ?: if (mode == "multiple") "out" else "out.jar"
     val replace = boolArg("replace", "r", args)
+    val traceErrors = boolArg("trace-errors", "tr", args)
 
     val inputFiles = if (mode == "multiple") {
         val inputDir = File(input)
@@ -27,8 +30,8 @@ fun run(args: Array<String>) {
 
     val outputFiles = if (mode == "multiple") {
         val outputDir = File(output)
-        if (!outputDir.exists()) throw Exception("Output directory does not exist: $input")
-        if (!outputDir.isDirectory) throw Exception("Output is not a directory: $input")
+        if (!outputDir.exists()) outputDir.mkdir()
+        if (!outputDir.isDirectory) throw Exception("Output is not a directory: $output")
         inputFiles.map {
             File(Paths.get(outputDir.canonicalPath, it.name).toString())
         }
@@ -54,7 +57,12 @@ fun run(args: Array<String>) {
             )
         } catch (e: Exception) {
             if (Logs.task) Logs.finish()
-            Logs.error(e.message ?: "Unknown error (${e.javaClass.canonicalName})")
+            Logs.error("${e::class.qualifiedName}: ${e.message}")
+            if (traceErrors) {
+                val buff = ByteArrayOutputStream()
+                e.printStackTrace(PrintStream(buff))
+                buff.toString().lines().filter { it.isNotBlank() }.forEach { Logs.error(it) }
+            }
         }
     }
 }
@@ -65,7 +73,7 @@ fun main(args: Array<String>) {
         run(args)
     } catch (e: Exception) {
         if (Logs.task) Logs.finish()
-        Logs.error(e.message ?: "Unknown error (${e.javaClass.canonicalName})")
+        Logs.error("${e::class.qualifiedName}: ${e.message}")
     }
     File("./.openbukloit/temp").deleteRecursively()
 }
