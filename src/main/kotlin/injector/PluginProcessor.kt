@@ -89,7 +89,7 @@ fun process(input: File, output: File, exploit: ClassFile, replace: Boolean) {
             if (nameConst.value == exploitMethod.name) nameConst.value = camouflage.methodName
         }
     }
-    fileSystem.getPath("/$pluginMainClassFile").writeBytes(patchedMainClass.compile())
+    fileSystem.getPath("/$pluginMainClassFile").writeBytes(patchedMainClass.compile(), StandardOpenOption.TRUNCATE_EXISTING)
     exploit.name = camouflage.className
     exploitMethod.name = camouflage.methodName
     for (entry in exploit.constantPool.entries) {
