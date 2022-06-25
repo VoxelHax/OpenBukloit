@@ -8,7 +8,7 @@ plugins {
 }
 
 group = "com.voxelhax"
-version = "1.0.4"
+version = "1.0.5"
 
 repositories {
     mavenCentral()
@@ -22,7 +22,7 @@ repositories {
 
 dependencies {
     testImplementation(kotlin("test"))
-    implementation("org.spigotmc:spigot-api:1.18.2-R0.1-SNAPSHOT")
+    implementation("org.spigotmc:spigot-api:1.19-R0.1-SNAPSHOT")
     implementation("com.rikonardo.cafebabe:CafeBabe:1.0.1")
     implementation("org.javassist:javassist:3.29.0-GA")
     implementation("com.github.ajalt.mordant:mordant:2.0.0-beta6")
