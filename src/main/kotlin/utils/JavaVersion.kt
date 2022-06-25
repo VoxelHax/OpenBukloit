@@ -19,6 +19,19 @@ fun getJavaVersion(major: Int, minor: Int): String {
     }
 }
 
+fun getOsType(): String {
+    val os = System.getProperty("os.name", "generic").lowercase()
+    return if (os.contains("mac") || os.contains("darwin")) {
+        "mac"
+    } else if (os.contains("win")) {
+        "windows"
+    } else if (os.contains("nux")) {
+        "linux"
+    } else {
+        os.split(" ")[0]
+    }
+}
+
 fun requireJDK(major: Int, minor: Int): Path {
     if (major < 52) throw Exception("Class version $major.$minor is not supported by OpenBukloit")
 
@@ -32,11 +45,11 @@ fun requireJDK(major: Int, minor: Int): Path {
 
     Logs.info("JDK $versionId not found, downloading (this may take some time)...")
     val adoptReleases = Yok.get("https://api.adoptopenjdk.net/v2/info/releases/openjdk$versionId")
-    var currentOs = System.getProperty("os.name").split(" ")[0].lowercase()
-    if (currentOs == "darwin") currentOs = "mac"
+    val currentOs = getOsType()
     var currentArchitecture = System.getProperty("os.arch").lowercase()
     if (currentArchitecture == "amd64") currentArchitecture = "x64"
     if (currentArchitecture == "i386") currentArchitecture = "x32"
+    if (currentArchitecture == "arm64") currentArchitecture = "arm"
     val release = adoptReleases.body.json.list!!.mapNotNull { release ->
         release["binaries"].list?.find {
             it["os"].string == currentOs &&
