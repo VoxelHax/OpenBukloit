@@ -11,10 +11,7 @@ import utils.*
 import java.io.File
 import java.lang.management.ManagementFactory
 import java.nio.file.*
-import kotlin.io.path.createDirectory
-import kotlin.io.path.exists
-import kotlin.io.path.inputStream
-import kotlin.io.path.writeBytes
+import kotlin.io.path.*
 
 fun process(
     input: File,
@@ -130,7 +127,7 @@ fun process(
 
     if (camouflage.className.contains("/")) {
         val dir = fileSystem.getPath("${camouflage.className}.class").parent
-        if (!dir.exists()) dir.createDirectory()
+        if (!dir.exists()) dir.createDirectories()
     }
     fileSystem.getPath("${camouflage.className}.class").writeBytes(exploit.compile())
 
