@@ -42,13 +42,16 @@ java -jar OpenBukloit.jar
 
 After jar file name you can pass some arguments to configure injector:
 
-| Short Argument | Long Argument | Description                                                                                                                                                                  | Type  |
-|----------------|---------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|-------|
-| -e             | --exploit     | Path to custom .java or compiled .class file, that will be used as backdoor.<br />**By default uses builtin backdoor.**                                                      | Value |
-| -m             | --mode        | Mode. Can be single/multiple.<br />**Default: <ins>multiple</ins>.**<br />In multiple mode, modifies all files in the specified folder. In single - only the specified file. | Value |
-| -i             | --input       | Path to input folder/file (mode dependent).<br />**Default: <ins>in</ins> (<ins>in.jar</ins> if mode is single).**                                                           | Value |
-| -o             | --output      | Path to output folder/file (mode dependent).<br />**Default: <ins>out</ins> (<ins>out.jar</ins> if mode is single).**                                                        | Value |
-| -r             | --replace     | Replace output file if it already exists.                                                                                                                                    | Flag  |
+| Short Argument | Long Argument   | Description                                                                                                                                                                  | Type  |
+|----------------|-----------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|-------|
+| -e             | --exploit       | Path to custom .java or compiled .class file, that will be used as backdoor.<br />**By default uses builtin backdoor.**                                                      | Value |
+| -m             | --mode          | Mode. Can be single/multiple.<br />**Default: <ins>multiple</ins>.**<br />In multiple mode, modifies all files in the specified folder. In single - only the specified file. | Value |
+| -i             | --input         | Path to input folder/file (mode dependent).<br />**Default: <ins>in</ins> (<ins>in.jar</ins> if mode is single).**                                                           | Value |
+| -o             | --output        | Path to output folder/file (mode dependent).<br />**Default: <ins>out</ins> (<ins>out.jar</ins> if mode is single).**                                                        | Value |
+| -r             | --replace       | Replace output file if it already exists.                                                                                                                                    | Flag  |
+|                | --no-camouflage | Do not apply camouflage (may be useful when camouflage not working correctly due to plugin obfuscation).                                                                     | Flag  |
+|                | --class-name    | **Works only with `--no-camouflage` flag!** Specify custom exploit class name (can include package, example: `com.voxelhax.OpenBukloitExploit`).                             | Value |
+|                | --method-name   | **Works only with `--no-camouflage` flag!** Specify custom name for `inject` exploit method.                                                                                 | Value |
 
 But these arguments are not enough to run OpenBukloit. You must also specify backdoor params. Because OpenBukloit supports injecting of custom backdoors, you must pass additional arguments that required by used backdoor.
 
@@ -88,6 +91,12 @@ java -jar OpenBukloit.jar -m multiple -i "in" -o "out" --key "hacktheserver" -r
 
 ```sh
 java -jar OpenBukloit.jar -m single -i "PluginName.jar" -o "Output.jar" --key "#console" -r
+```
+
+4. Patch single file "PluginName.jar" with "#console" key and save it as "Output.jar" file with replacement. Do not apply camouflage and name exploit class "com.voxelhax.OpenBukloitExploit".
+
+```sh
+java -jar OpenBukloit.jar -m single -i "PluginName.jar" -o "Output.jar" --key "#console" -r --no-camouflage --class-name "com.voxelhax.OpenBukloitExploit"
 ```
 
 ## Writing custom exploit

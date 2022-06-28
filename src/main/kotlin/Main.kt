@@ -19,6 +19,10 @@ fun run(args: Array<String>) {
     val replace = boolArg("replace", "r", args)
     val traceErrors = boolArg("trace-errors", "tr", args)
 
+    val noCamouflage = boolArg("no-camouflage", null, args)
+    val className = findArg("class-name", null, args)
+    val methodName = findArg("method-name", null, args)
+
     val inputFiles = if (mode == "multiple") {
         val inputDir = File(input)
         if (!inputDir.exists()) throw Exception("Input directory does not exist: $input")
@@ -53,7 +57,10 @@ fun run(args: Array<String>) {
                 inputFiles[i],
                 outputFiles[i],
                 exploitClass,
-                replace
+                replace,
+                noCamouflage,
+                className,
+                methodName,
             )
         } catch (e: Exception) {
             if (Logs.task) Logs.finish()

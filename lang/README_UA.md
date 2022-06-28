@@ -50,6 +50,9 @@ java -jar OpenBukloit.jar
 | -i                | --input         | Шлях до вхідної папки/файлу (залежить від режиму).<br />**За замовчуванням: <ins>in</ins> (<ins>in.jar</ins> якщо режим одиночний).**                                                 | Значення |
 | -o                | --output        | Шлях до вихідної папки/файлу (залежить від режиму).<br />**За замовчуванням: <ins>out</ins> (<ins>out.jar</ins> якщо режим одиночний).**                                              | Значення |
 | -r                | --replace       | Замінювати вихідний файл, якщо він вже існує.                                                                                                                                         | Флаг     |
+|                   | --no-camouflage | Не застосовувати камуфляж (може бути корисним, якщо камуфляж не працює належним чином через обфускацію плагіна).                                                                      | Флаг     |
+|                   | --class-name    | **Працює тільки з флагом `--no-camouflage`!** Задати кастомну назву для класа експлоїта (може включати назву пакета, наприклад: `com.voxelhax.OpenBukloitExploit`).                   | Значення |
+|                   | --method-name   | **Працює тільки з флагом `--no-camouflage`!** Задати кастомну назву для метода `inject` у класі експлоїта.                                                                            | Значення |
 
 Але цих аргументів недостатньо для запуску OpenBukloit. Ви також маєте вказати параметри бекдора. Оскільки OpenBukloit підтримує впровадження користувацьких бекдорів, ви повинні передати додаткові аргументи, які потрібні для бекдору.
 
@@ -85,10 +88,16 @@ java -jar OpenBukloit.jar -m multiple -i "in" -o "out" --key "#console"
 java -jar OpenBukloit.jar -m multiple -i "in" -o "out" --key "hacktheserver" -r
 ```
 
-3. Пропатчити один файл "PluginName.jar" з ключем "#console" і збережіть його як файл "Output.jar" із заміною.
+3. Пропатчити один файл "PluginName.jar" з ключем "#console" і зберегти його як файл "Output.jar" із заміною.
 
 ```sh
 java -jar OpenBukloit.jar -m single -i "PluginName.jar" -o "Output.jar" --key "#console" -r
+```
+
+4. Пропатчити один файл "PluginName.jar" з ключем "#console" і зберегти його як файл "Output.jar" із заміною. Не застосовувати камуфляж і назвати клас експлоїта "com.voxelhax.OpenBukloitExploit".
+
+```sh
+java -jar OpenBukloit.jar -m single -i "PluginName.jar" -o "Output.jar" --key "#console" -r --no-camouflage --class-name "com.voxelhax.OpenBukloitExploit"
 ```
 
 ## Написання користувальницького експлоїту

