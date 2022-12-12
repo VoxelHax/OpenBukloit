@@ -47,6 +47,7 @@ fun requireJDK(major: Int, minor: Int): Path {
     val adoptReleases = Yok.get("https://api.adoptopenjdk.net/v2/info/releases/openjdk$versionId")
     val currentOs = getOsType()
     var currentArchitecture = System.getProperty("os.arch").lowercase()
+    if (currentArchitecture == "x86_64") currentArchitecture = "x64"
     if (currentArchitecture == "amd64") currentArchitecture = "x64"
     if (currentArchitecture == "i386") currentArchitecture = "x32"
     if (currentArchitecture == "arm64") currentArchitecture = "arm"
