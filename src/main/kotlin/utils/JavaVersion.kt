@@ -44,30 +44,27 @@ fun requireJDK(major: Int, minor: Int): Path {
     if (jdkDir.exists()) jdkDir.deleteRecursively()
 
     Logs.info("JDK $versionId not found, downloading (this may take some time)...")
-    val adoptReleases = Yok.get("https://api.adoptopenjdk.net/v2/info/releases/openjdk$versionId")
     val currentOs = getOsType()
     var currentArchitecture = System.getProperty("os.arch").lowercase()
     if (currentArchitecture == "x86_64") currentArchitecture = "x64"
     if (currentArchitecture == "amd64") currentArchitecture = "x64"
     if (currentArchitecture == "i386") currentArchitecture = "x32"
     if (currentArchitecture == "arm64") currentArchitecture = "arm"
-    val release = adoptReleases.body.json.list!!.mapNotNull { release ->
-        release["binaries"].list?.find {
-            it["os"].string == currentOs &&
-            it["architecture"].string == currentArchitecture &&
-            it["openjdk_impl"].string == "hotspot" &&
-            it["binary_type"].string == "jdk"
-        }
-    }.let { if (it.isNotEmpty()) it[0] else null } ?:
-        throw Exception("No JDK release found for $currentOs $currentArchitecture")
 
-    val jdkUrl = release["binary_link"].string!!
+    var extension = ".tar.gz"
+    if(currentOs == "windows")
+        extension = ".zip"
+
+    val binaryName = "jdk-$versionId-$currentOs-$currentArchitecture$extension"
+    val url = "https://api.adoptium.net/v3/binary/latest/$versionId/ga/$currentOs/$currentArchitecture/jdk/hotspot/normal/eclipse?project=jdk"
+    Logs.info("URL: $url")
+
     File("./.openbukloit/temp/jdk").mkdirs()
-    val downloaded = Paths.get("./.openbukloit/temp/jdk", release["binary_name"].string!!)
-    Files.copy(Yok.get(jdkUrl).body.stream, downloaded)
+    val downloaded = Paths.get("./.openbukloit/temp/jdk", binaryName)
+    Files.copy(Yok.get(url).body.stream, downloaded)
 
     Logs.info("JDK $versionId downloaded, extracting...")
-    val archiver = if (release["binary_name"].string!!.endsWith(".tar.gz"))
+    val archiver = if (binaryName.endsWith(".tar.gz"))
         ArchiverFactory.createArchiver("tar", "gz")
     else
         ArchiverFactory.createArchiver("zip")
