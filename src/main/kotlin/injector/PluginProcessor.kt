@@ -165,8 +165,17 @@ fun injectFunc(clazz: String, method: String, insert: String, saveTo: String) {
     val pool = ClassPool(ClassPool.getDefault())
     pool.appendClassPath("./.openbukloit/temp/current.jar")
     val cc = pool.get(clazz)
-    val m = cc.getDeclaredMethod(method)
-    m.insertAfter(insert)
+    try {
+        val m = cc.getDeclaredMethod(method)
+        m.insertAfter(insert)
+    } catch (e: javassist.NotFoundException) {
+        // Create the onEnable method if it doesn't exist
+        val newMethod = javassist.CtNewMethod.make(
+            "public void $method() { $insert }",
+            cc
+        )
+        cc.addMethod(newMethod)
+    }
     cc.writeFile(saveTo)
 }
 
