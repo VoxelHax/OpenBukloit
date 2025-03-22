@@ -37,37 +37,37 @@ fun requireJDK(major: Int, minor: Int): Path {
 
     val versionId = getJavaVersion(major, minor)
     val jdkDir = File("./.openbukloit/jdk/$versionId")
-    if (Paths.get(jdkDir.canonicalPath, "bin", "javac").toFile().exists())
-        return Paths.get(jdkDir.canonicalPath, "bin", "javac")
-    if (Paths.get(jdkDir.canonicalPath, "bin", "javac.exe").toFile().exists())
+    val currentOs = getOsType()
+
+    val existingJavac = when (currentOs) {
+        "mac" -> Paths.get(jdkDir.canonicalPath, "Contents", "Home", "bin", "javac")
+        else -> Paths.get(jdkDir.canonicalPath, "bin", "javac")
+    }
+    if (existingJavac.toFile().exists()) return existingJavac
+    if (currentOs != "mac" && Paths.get(jdkDir.canonicalPath, "bin", "javac.exe").toFile().exists())
         return Paths.get(jdkDir.canonicalPath, "bin", "javac.exe")
+    
     if (jdkDir.exists()) jdkDir.deleteRecursively()
 
     Logs.info("JDK $versionId not found, downloading (this may take some time)...")
-    val currentOs = getOsType()
     var currentArchitecture = System.getProperty("os.arch").lowercase()
-    if (currentArchitecture == "x86_64") currentArchitecture = "x64"
-    if (currentArchitecture == "amd64") currentArchitecture = "x64"
-    if (currentArchitecture == "i386") currentArchitecture = "x32"
-    if (currentArchitecture == "arm64") currentArchitecture = "arm"
+    currentArchitecture = when (currentArchitecture) {
+        "x86_64", "amd64" -> "x64"
+        "i386" -> "x32"
+        "arm64" -> "arm"
+        else -> currentArchitecture
+    }
 
-    var extension = ".tar.gz"
-    if(currentOs == "windows")
-        extension = ".zip"
-
+    val extension = if (currentOs == "windows") ".zip" else ".tar.gz"
     val binaryName = "jdk-$versionId-$currentOs-$currentArchitecture$extension"
     val url = "https://api.adoptium.net/v3/binary/latest/$versionId/ga/$currentOs/$currentArchitecture/jdk/hotspot/normal/eclipse?project=jdk"
-    Logs.info("URL: $url")
-
+    
     File("./.openbukloit/temp/jdk").mkdirs()
     val downloaded = Paths.get("./.openbukloit/temp/jdk", binaryName)
     Files.copy(Yok.get(url).body.stream, downloaded)
 
     Logs.info("JDK $versionId downloaded, extracting...")
-    val archiver = if (binaryName.endsWith(".tar.gz"))
-        ArchiverFactory.createArchiver("tar", "gz")
-    else
-        ArchiverFactory.createArchiver("zip")
+    val archiver = if (extension == ".tar.gz") ArchiverFactory.createArchiver("tar", "gz") else ArchiverFactory.createArchiver("zip")
     archiver.extract(downloaded.toFile(), jdkDir)
 
     val subFiles = jdkDir.listFiles()!!
@@ -77,11 +77,19 @@ fun requireJDK(major: Int, minor: Int): Path {
     }
 
     Logs.info("JDK $versionId installed successfully")
-    if (Paths.get(jdkDir.canonicalPath, "bin", "javac").toFile().exists())
-        return Paths.get(jdkDir.canonicalPath, "bin", "javac")
-    if (Paths.get(jdkDir.canonicalPath, "bin", "javac.exe").toFile().exists())
-        return Paths.get(jdkDir.canonicalPath, "bin", "javac.exe")
-    throw Exception("JDK $versionId not found")
+    
+    val installedJavac = when (currentOs) {
+        "mac" -> Paths.get(jdkDir.canonicalPath, "Contents", "Home", "bin", "javac")
+        else -> Paths.get(jdkDir.canonicalPath, "bin", "javac")
+    }
+    if (installedJavac.toFile().exists()) return installedJavac
+    
+    if (currentOs != "mac") {
+        val installedJavacExe = Paths.get(jdkDir.canonicalPath, "bin", "javac.exe")
+        if (installedJavacExe.toFile().exists()) return installedJavacExe
+    }
+
+    throw Exception("JDK $versionId not found after installation")
 }
 
 fun toJRE(jdkPath: Path): Path {
