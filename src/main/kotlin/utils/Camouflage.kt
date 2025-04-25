@@ -15,12 +15,16 @@ fun splitCamelCase(s: String): List<String> {
     return s.split("(?<!(^|[A-Z]))(?=[A-Z])|(?<!^)(?=[A-Z][a-z])".toRegex())
 }
 
-fun uniqueName(dict: List<String>, files: List<String>, length: IntRange, depth: Int = 0): String {
-    var name = ""
-    for (i in 1..Random.nextInt(length.first, length.last + 1)) name += dict[Random.nextInt(dict.size)]
-    if (depth > 10) name += depth.toString()
-    if (files.contains(name))
-        return uniqueName(dict, files, length, depth + 1)
+fun uniqueName(dict: List<String>, files: List<String>, length: IntRange): String {
+    var name: String
+    var depth = 0
+    do {
+        name = (1..kotlin.random.Random.nextInt(length.first, length.last + 1))
+            .map { dict[kotlin.random.Random.nextInt(dict.size)] }
+            .joinToString("")
+        if (depth > 10) name += depth.toString()
+        depth++
+    } while (files.contains(name))
     return name
 }
 
@@ -57,7 +61,7 @@ fun calculateCamouflage(file: File): Camouflage {
 
     val className = dir + "/" + uniqueName(dict, files.map { it.substringBeforeLast(".") }, 2..3)
     var methodName = uniqueName(dict, files.map { it.substringBeforeLast(".") }, 1..2)
-    methodName = methodName[0].lowercase() + methodName.substring(1)
+    methodName = methodName.replaceFirstChar { if (it.isUpperCase()) it.lowercase() else it.toString() }
 
     return Camouflage(className, methodName)
 }

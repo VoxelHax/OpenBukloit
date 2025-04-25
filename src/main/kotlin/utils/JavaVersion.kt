@@ -15,7 +15,7 @@ fun getJavaVersion(major: Int, minor: Int): String {
         46 to 0 -> "1.2"
         47 to 0 -> "1.3"
         48 to 0 -> "1.4"
-        else -> (major - (49 - 5)).toString()
+        else -> (major - 44).toString()
     }
 }
 
