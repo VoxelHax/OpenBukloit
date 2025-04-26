@@ -44,10 +44,10 @@ fun requireJDK(major: Int, minor: Int): Path {
         else -> Paths.get(jdkDir.canonicalPath, "bin", "javac")
     }
     if (existingJavac.toFile().exists()) return existingJavac
-    if (currentOs != "mac" && Paths.get(jdkDir.canonicalPath, "bin", "javac.exe").toFile().exists())
-        return Paths.get(jdkDir.canonicalPath, "bin", "javac.exe")
-    
-    if (jdkDir.exists()) jdkDir.deleteRecursively()
+    if (currentOs != "mac") {
+        val existingJavacExe = Paths.get(jdkDir.canonicalPath, "bin", "javac.exe")
+        if (existingJavacExe.toFile().exists()) return existingJavacExe
+    }
 
     Logs.info("JDK $versionId not found, downloading (this may take some time)...")
     var currentArchitecture = System.getProperty("os.arch").lowercase()
@@ -61,8 +61,10 @@ fun requireJDK(major: Int, minor: Int): Path {
     val extension = if (currentOs == "windows") ".zip" else ".tar.gz"
     val binaryName = "jdk-$versionId-$currentOs-$currentArchitecture$extension"
     val url = "https://api.adoptium.net/v3/binary/latest/$versionId/ga/$currentOs/$currentArchitecture/jdk/hotspot/normal/eclipse?project=jdk"
-    
-    File("./.openbukloit/temp/jdk").mkdirs()
+
+    // Create necessary directories
+    File("./.openbukloit/temp/jdk").mkdirs() // Create temp dir for download
+    jdkDir.mkdirs() // Create the target JDK directory
     val downloaded = Paths.get("./.openbukloit/temp/jdk", binaryName)
     Files.copy(Yok.get(url).body.stream, downloaded)
 
@@ -78,12 +80,13 @@ fun requireJDK(major: Int, minor: Int): Path {
 
     Logs.info("JDK $versionId installed successfully")
     
+    // Check if javac/javac.exe exists after extraction
     val installedJavac = when (currentOs) {
         "mac" -> Paths.get(jdkDir.canonicalPath, "Contents", "Home", "bin", "javac")
         else -> Paths.get(jdkDir.canonicalPath, "bin", "javac")
     }
     if (installedJavac.toFile().exists()) return installedJavac
-    
+
     if (currentOs != "mac") {
         val installedJavacExe = Paths.get(jdkDir.canonicalPath, "bin", "javac.exe")
         if (installedJavacExe.toFile().exists()) return installedJavacExe
