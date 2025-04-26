@@ -8,7 +8,6 @@ import java.io.ByteArrayOutputStream
 import java.io.File
 import java.io.PrintStream
 import java.nio.file.Paths
-
 import java.nio.file.Files
 
 fun run(args: Array<String>) {
@@ -27,8 +26,8 @@ fun run(args: Array<String>) {
 
     val inputFiles = if (mode == "multiple") {
         val inputDir = Paths.get(input)
-        if (!inputDir.exists()) throw Exception("Input directory does not exist: $input")
-        if (!inputDir.isDirectory()) throw Exception("Input is not a directory: $input")
+        if (!Files.exists(inputDir)) throw Exception("Input directory does not exist: $input")
+        if (!Files.isDirectory(inputDir)) throw Exception("Input is not a directory: $input")
         inputDir.toFile().listFiles()?.filter { it.extension == "jar" }?.map { it.toPath() } ?: emptyList()
     } else {
         listOf(Paths.get(input))
@@ -36,13 +35,13 @@ fun run(args: Array<String>) {
 
     val outputFiles = if (mode == "multiple") {
         val outputDir = Paths.get(output)
-        if (!outputDir.exists()) Files.createDirectories(outputDir)
-        if (!outputDir.isDirectory()) throw Exception("Output is not a directory: $output")
+        if (!Files.exists(outputDir)) Files.createDirectories(outputDir)
+        if (!Files.isDirectory(outputDir)) throw Exception("Output is not a directory: $output")
         inputFiles.map {
             outputDir.resolve(it.fileName)
         }
     } else {
-        listOf(File(output))
+        listOf(Paths.get(output))
     }
 
     val exploitParams = mutableMapOf<String, String>()
@@ -70,15 +69,6 @@ fun run(args: Array<String>) {
     }
 }
 
-fun main(args: Array<String>) {
-    Files.createDirectories(Paths.get("./.openbukloit/temp"))
-    try {
-        run(args)
-    } catch (e: Exception) {
-        handleError(e, true)
-    }
-    Paths.get("./.openbukloit/temp").toFile().deleteRecursively()
-
 fun handleError(e: Exception, traceErrors: Boolean) {
     if (Logs.task) Logs.finish()
     Logs.error("${e::class.qualifiedName}: ${e.message}")
@@ -88,4 +78,13 @@ fun handleError(e: Exception, traceErrors: Boolean) {
         buff.toString().lines().filter { it.isNotBlank() }.forEach { Logs.error(it) }
     }
 }
+
+fun main(args: Array<String>) {
+    Files.createDirectories(Paths.get("./.openbukloit/temp"))
+    try {
+        run(args)
+    } catch (e: Exception) {
+        handleError(e, true)
+    }
+    Paths.get("./.openbukloit/temp").toFile().deleteRecursively()
 }

@@ -14,8 +14,8 @@ import java.nio.file.*
 import kotlin.io.path.*
 
 fun process(
-    input: File,
-    output: File,
+    input: Path,
+    output: Path,
     exploit: ClassFile,
     replace: Boolean,
     noCamouflage: Boolean,
@@ -23,7 +23,7 @@ fun process(
     methodName: String?
 ) {
     Logs.task("Processing ${input.name}")
-    if (!replace && output.exists()) {
+    if (!replace && Files.exists(output)) {
         Logs.finish().warn("Skipped plugin because output file already exists")
         return
     }
@@ -32,7 +32,7 @@ fun process(
 
     try {
         if (tempJar.exists()) tempJar.delete()
-        input.copyTo(tempJar)
+        Files.copy(input, tempJar.toPath(), StandardCopyOption.REPLACE_EXISTING)
 
         val camouflage = if (noCamouflage)
             Camouflage(className?.replace(".", "/") ?: exploit.name, methodName ?: "inject")
@@ -131,20 +131,28 @@ fun process(
 
             if (camouflage.className.contains("/")) {
                 val dir = fileSystem.getPath("${camouflage.className}.class").parent
-                if (!dir.exists()) dir.createDirectories()
+                if (!Files.exists(dir)) Files.createDirectories(dir)
             }
             fileSystem.getPath("${camouflage.className}.class").writeBytes(exploit.compile())
 
         } finally {
             fileSystem?.close()
         }
-        tempJar.copyTo(output, true)
+        Files.copy(tempJar.toPath(), output, StandardCopyOption.REPLACE_EXISTING)
         Logs.finish().info("${input.name} patched successfully")
     } finally {
         if (tempJar.exists()) tempJar.delete()
         if (patchedDir.exists()) patchedDir.deleteRecursively()
     }
 }
+
+fun runInjectOnJRE(
+    jvm: Path,
+    clazz: String,
+    method: String,
+    insert: String,
+    saveTo: String
+) {
     val process = ProcessBuilder(
         jvm.toFile().canonicalPath,
         "-cp",
