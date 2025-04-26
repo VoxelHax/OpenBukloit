@@ -75,7 +75,7 @@ fun main(args: Array<String>) {
     try {
         run(args)
     } catch (e: Exception) {
-        handleError(e, false) // No trace in main, just the basic error
+        handleError(e, true)
     }
     Paths.get("./.openbukloit/temp").toFile().deleteRecursively()
 
