@@ -9,6 +9,8 @@ import java.io.File
 import java.io.PrintStream
 import java.nio.file.Paths
 
+import java.nio.file.Files
+
 fun run(args: Array<String>) {
     val exploit = loadExploit(findArg("exploit", "e", args))
     val preparedExploit = PreparedExploit(exploit)
@@ -24,20 +26,20 @@ fun run(args: Array<String>) {
     val methodName = findArg("method-name", null, args)
 
     val inputFiles = if (mode == "multiple") {
-        val inputDir = File(input)
+        val inputDir = Paths.get(input)
         if (!inputDir.exists()) throw Exception("Input directory does not exist: $input")
-        if (!inputDir.isDirectory) throw Exception("Input is not a directory: $input")
-        inputDir.listFiles()!!.filter { it.extension == "jar" }
+        if (!inputDir.isDirectory()) throw Exception("Input is not a directory: $input")
+        inputDir.toFile().listFiles()?.filter { it.extension == "jar" }?.map { it.toPath() } ?: emptyList()
     } else {
-        listOf(File(input))
+        listOf(Paths.get(input))
     }
 
     val outputFiles = if (mode == "multiple") {
-        val outputDir = File(output)
-        if (!outputDir.exists()) outputDir.mkdir()
-        if (!outputDir.isDirectory) throw Exception("Output is not a directory: $output")
+        val outputDir = Paths.get(output)
+        if (!outputDir.exists()) Files.createDirectories(outputDir)
+        if (!outputDir.isDirectory()) throw Exception("Output is not a directory: $output")
         inputFiles.map {
-            File(Paths.get(outputDir.canonicalPath, it.name).toString())
+            outputDir.resolve(it.fileName)
         }
     } else {
         listOf(File(output))
@@ -63,24 +65,27 @@ fun run(args: Array<String>) {
                 methodName,
             )
         } catch (e: Exception) {
-            if (Logs.task) Logs.finish()
-            Logs.error("${e::class.qualifiedName}: ${e.message}")
-            if (traceErrors) {
-                val buff = ByteArrayOutputStream()
-                e.printStackTrace(PrintStream(buff))
-                buff.toString().lines().filter { it.isNotBlank() }.forEach { Logs.error(it) }
-            }
+            handleError(e, traceErrors)
         }
     }
 }
 
 fun main(args: Array<String>) {
-    File("./.openbukloit/temp").mkdirs()
+    Files.createDirectories(Paths.get("./.openbukloit/temp"))
     try {
         run(args)
     } catch (e: Exception) {
-        if (Logs.task) Logs.finish()
-        Logs.error("${e::class.qualifiedName}: ${e.message}")
+        handleError(e, false) // No trace in main, just the basic error
     }
-    File("./.openbukloit/temp").deleteRecursively()
+    Paths.get("./.openbukloit/temp").toFile().deleteRecursively()
+
+fun handleError(e: Exception, traceErrors: Boolean) {
+    if (Logs.task) Logs.finish()
+    Logs.error("${e::class.qualifiedName}: ${e.message}")
+    if (traceErrors) {
+        val buff = ByteArrayOutputStream()
+        e.printStackTrace(PrintStream(buff))
+        buff.toString().lines().filter { it.isNotBlank() }.forEach { Logs.error(it) }
+    }
+}
 }
