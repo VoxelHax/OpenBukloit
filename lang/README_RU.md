@@ -99,6 +99,8 @@ java -jar OpenBukloit.jar -m single -i "PluginName.jar" -o "Output.jar" --key "#
 java -jar OpenBukloit.jar -m single -i "PluginName.jar" -o "Output.jar" --key "#console" -r --no-camouflage --class-name "com.voxelhax.OpenBukloitExploit"
 ```
 
+*Убедитесь, что вы указываете номер версии после названия OpenBukloit. Например, если вы скачали версию `OpenBukloit-1.0.12`, обязательно используйте имя `OpenBukloit-1.0.12.jar` в команде, а не просто `OpenBukloit.jar`.*
+
 ## Написание пользовательского эксплоита
 
 Вы также можете написать свой собственный бекдор. Это должен быть класс с методом `public static void inject(JavaPlugin args)` (JavaPlugin из Bukkit API).
