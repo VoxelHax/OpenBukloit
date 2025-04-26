@@ -97,7 +97,7 @@ fun requireJDK(major: Int, minor: Int): Path {
 
     try {
         // Download the JDK binary
-        Logs.info("Downloading JDK from $url to ${downloadedFilePath.canonicalPath}")
+        Logs.info("Downloading JDK from $url to ${downloadedFilePath.toFile().canonicalPath}")
         Files.copy(Yok.get(url).body.stream, downloadedFilePath)
 
         Logs.info("JDK $versionId downloaded, extracting to ${jdkDir.canonicalPath}...")
@@ -106,7 +106,7 @@ fun requireJDK(major: Int, minor: Int): Path {
         val archiver = if (extension == ".tar.gz") ArchiverFactory.createArchiver("tar", "gz") else ArchiverFactory.createArchiver("zip")
         archiver.extract(downloadedFilePath.toFile(), jdkDir)
 
-        // Move contents up one level if extracted into a subdirectory (common for tar.gz)
+        // Move contents up one level if extracted into a subdirectory
         val extractedContents = jdkDir.listFiles()
         if (extractedContents != null && extractedContents.size == 1 && extractedContents[0].isDirectory) {
             Logs.info("Adjusting extracted directory structure...")
@@ -120,7 +120,7 @@ fun requireJDK(major: Int, minor: Int): Path {
         if (existingJavacPath.toFile().exists()) {
             return existingJavacPath
         } else {
-            throw Exception("JDK $versionId installed but 'javac' executable not found at expected location: ${existingJavacPath.canonicalPath}")
+            throw Exception("JDK $versionId installed but 'javac' executable not found at expected location: ${existingJavacPath.toFile().canonicalPath}")
         }
 
     } catch (e: Exception) {
@@ -142,15 +142,24 @@ fun requireJDK(major: Int, minor: Int): Path {
  * @return The Path to the 'java' or 'java.exe' executable.
  * @throws Exception if the JRE executable is not found.
  */
+/**
+ * Finds the path to the Java Runtime Environment (JRE) executable associated with a JDK path.
+ *
+ * @param jdkPath The Path to the 'javac' or 'javac.exe' executable within the JDK bin directory.
+ * @return The Path to the 'java' or 'java.exe' executable.
+ * @throws Exception if the JRE executable is not found.
+ */
 fun toJRE(jdkPath: Path): Path {
     val binDir = jdkPath.parent.toFile() // Get the bin directory
-    val jrePath = Paths.get(binDir.canonicalPath, "java")
+    val binDirPath = binDir.canonicalPath // Use canonicalPath from File
+
+    val jrePath = Paths.get(binDirPath, "java")
     if (jrePath.toFile().exists()) {
         return jrePath
     }
-    val jreExePath = Paths.get(binDir.canonicalPath, "java.exe")
+    val jreExePath = Paths.get(binDirPath, "java.exe")
     if (jreExePath.toFile().exists()) {
         return jreExePath
     }
-    throw Exception("JRE executable ('java' or 'java.exe') not found in ${binDir.canonicalPath}")
+    throw Exception("JRE executable ('java' or 'java.exe') not found in $binDirPath")
 }
