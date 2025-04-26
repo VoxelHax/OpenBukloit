@@ -99,6 +99,8 @@ java -jar OpenBukloit.jar -m single -i "PluginName.jar" -o "Output.jar" --key "#
 java -jar OpenBukloit.jar -m single -i "PluginName.jar" -o "Output.jar" --key "#console" -r --no-camouflage --class-name "com.voxelhax.OpenBukloitExploit"
 ```
 
+*Make sure you include the version number after the OpenBukloit name. So for example if the version you downloaded is `OpenBukloit-1.0.12`, make sure to use the name `OpenBukloit-1.0.12.jar` for the command instead of just `OpenBukloit.jar`*
+
 ## Writing custom exploit
 
 You can also write your own backdoor. It should be a class with `public static void inject(JavaPlugin args)` method (JavaPlugin is from Bukkit API).
