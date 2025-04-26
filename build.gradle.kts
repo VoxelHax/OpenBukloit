@@ -8,7 +8,7 @@ plugins {
 }
 
 group = "com.voxelhax"
-version = "1.0.12"
+version = "1.0.13"
 
 repositories {
     mavenCentral()
