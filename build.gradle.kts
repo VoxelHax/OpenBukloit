@@ -8,7 +8,7 @@ plugins {
 }
 
 group = "com.voxelhax"
-version = "1.0.13"
+version = "1.1.0"
 
 repositories {
     mavenCentral()
@@ -22,12 +22,18 @@ repositories {
 
 dependencies {
     testImplementation(kotlin("test"))
+    // Spigot API dependency for Bukkit plugin development
     implementation("org.spigotmc:spigot-api:1.19-R0.1-SNAPSHOT")
+    // CafeBabe library for working with Java class files
     implementation("com.rikonardo.cafebabe:CafeBabe:1.0.1")
+    // Javassist library for bytecode manipulation
     implementation("org.javassist:javassist:3.29.0-GA")
+    // Mordant library for colored console output
     implementation("com.github.ajalt.mordant:mordant:2.0.0-beta6")
+    // KSON and Yok for configuration parsing
     implementation("dev.virefire.kson:KSON:1.3.1")
     implementation("dev.virefire.yok:Yok:1.0.4")
+    // Jarchivelib for archive manipulation
     implementation("org.rauschig:jarchivelib:1.2.0")
 }
 
@@ -45,14 +51,17 @@ tasks.withType<KotlinCompile> {
 
 tasks {
     named<ShadowJar>("shadowJar") {
-        archiveClassifier.set("")
+        // Configures the ShadowJar task to create a single executable JAR
+        archiveClassifier.set("") // Removes the classifier from the JAR name
     }
 
     build {
+        // Ensures the shadowJar task is run as part of the build process
         dependsOn(shadowJar)
     }
 }
 
 application {
+    // Specifies the main class for the application
     mainClass.set("MainKt")
 }

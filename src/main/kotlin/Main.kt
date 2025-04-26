@@ -69,13 +69,23 @@ fun run(args: Array<String>) {
     }
 }
 
+/**
+ * Handles exceptions by logging the error message and optionally the stack trace.
+ *
+ * @param e The exception to handle.
+ * @param traceErrors Whether to print the stack trace.
+ */
 fun handleError(e: Exception, traceErrors: Boolean) {
     if (Logs.task) Logs.finish()
     Logs.error("${e::class.qualifiedName}: ${e.message}")
     if (traceErrors) {
-        val buff = ByteArrayOutputStream()
-        e.printStackTrace(PrintStream(buff))
-        buff.toString().lines().filter { it.isNotBlank() }.forEach { Logs.error(it) }
+        val stackTrace = ByteArrayOutputStream().use { buff ->
+            PrintStream(buff).use { ps ->
+                e.printStackTrace(ps)
+            }
+            buff.toString()
+        }
+        stackTrace.lines().filter { it.isNotBlank() }.forEach { Logs.error(it) }
     }
 }
 
