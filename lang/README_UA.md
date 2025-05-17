@@ -41,6 +41,8 @@
 java -jar OpenBukloit.jar
 ```
 
+*Обов’язково вкажіть номер версії після назви OpenBukloit. Наприклад, якщо ви завантажили версію `OpenBukloit-1.0.12`, переконайтеся, що у команді ви використовуєте назву `OpenBukloit-1.0.12.jar`, а не просто `OpenBukloit.jar`*
+
 Після імені файлу jar можна передати деякі аргументи для налаштування інжектора:
 
 | Короткий аргумент | Довгий аргумент | Опис                                                                                                                                                                                  | Тип      |
@@ -99,8 +101,6 @@ java -jar OpenBukloit.jar -m single -i "PluginName.jar" -o "Output.jar" --key "#
 ```sh
 java -jar OpenBukloit.jar -m single -i "PluginName.jar" -o "Output.jar" --key "#console" -r --no-camouflage --class-name "com.voxelhax.OpenBukloitExploit"
 ```
-
-*Обов’язково вкажіть номер версії після назви OpenBukloit. Наприклад, якщо ви завантажили версію `OpenBukloit-1.0.12`, переконайтеся, що у команді ви використовуєте назву `OpenBukloit-1.0.12.jar`, а не просто `OpenBukloit.jar`*
 
 ## Написання користувальницького експлоїту
 
