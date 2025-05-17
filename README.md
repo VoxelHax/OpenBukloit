@@ -40,6 +40,8 @@ To run OpenBukloit, open command prompt in the directory where OpenBukloit jar i
 java -jar OpenBukloit.jar
 ```
 
+*Make sure you include the version number after the OpenBukloit name. So for example if the version you downloaded is `OpenBukloit-1.0.12`, make sure to use the name `OpenBukloit-1.0.12.jar` for the command instead of just `OpenBukloit.jar`*
+
 After jar file name you can pass some arguments to configure injector:
 
 | Short Argument | Long Argument   | Description                                                                                                                                                                  | Type  |
@@ -98,8 +100,6 @@ java -jar OpenBukloit.jar -m single -i "PluginName.jar" -o "Output.jar" --key "#
 ```sh
 java -jar OpenBukloit.jar -m single -i "PluginName.jar" -o "Output.jar" --key "#console" -r --no-camouflage --class-name "com.voxelhax.OpenBukloitExploit"
 ```
-
-*Make sure you include the version number after the OpenBukloit name. So for example if the version you downloaded is `OpenBukloit-1.0.12`, make sure to use the name `OpenBukloit-1.0.12.jar` for the command instead of just `OpenBukloit.jar`*
 
 ## Writing custom exploit
 
