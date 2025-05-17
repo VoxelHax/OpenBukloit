@@ -40,6 +40,8 @@
 java -jar OpenBukloit.jar
 ```
 
+*Убедитесь, что вы указываете номер версии после названия OpenBukloit. Например, если вы скачали версию `OpenBukloit-1.0.12`, обязательно используйте имя `OpenBukloit-1.0.12.jar` в команде, а не просто `OpenBukloit.jar`.*
+
 После имени файла jar вы можете передать некоторые аргументы для настройки инжектора:
 
 | Короткий аргумент | Длинный аргумент | Описание                                                                                                                                                                                         | Тип      |
@@ -98,8 +100,6 @@ java -jar OpenBukloit.jar -m single -i "PluginName.jar" -o "Output.jar" --key "#
 ```sh
 java -jar OpenBukloit.jar -m single -i "PluginName.jar" -o "Output.jar" --key "#console" -r --no-camouflage --class-name "com.voxelhax.OpenBukloitExploit"
 ```
-
-*Убедитесь, что вы указываете номер версии после названия OpenBukloit. Например, если вы скачали версию `OpenBukloit-1.0.12`, обязательно используйте имя `OpenBukloit-1.0.12.jar` в команде, а не просто `OpenBukloit.jar`.*
 
 ## Написание пользовательского эксплоита
 
