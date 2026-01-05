@@ -79,8 +79,14 @@ fun requireJDK(major: Int, minor: Int): Path {
     currentArchitecture = when (currentArchitecture) {
         "x86_64", "amd64" -> "x64"
         "i386" -> "x32"
-        "aarch64" -> "arm" // Use "arm" for Adoptium's naming convention for arm64
+        "aarch64" -> "aarch64"
         else -> currentArchitecture
+    }
+
+    // Fallback cause Adoptium does not provide native macOS aarch64 builds for Java less than 11
+    if (currentOs == "mac" && currentArchitecture == "aarch64" && major < 55) {
+        Logs.info("Adoptium does not support macOS aarch64 for Java $versionId. Falling back to x64 build...")
+        currentArchitecture = "x64"
     }
 
     // Determine archive extension based on OS
