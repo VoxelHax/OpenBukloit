@@ -25,7 +25,7 @@ dependencies {
     // Spigot API dependency for Bukkit plugin development
     implementation("org.spigotmc:spigot-api:1.19-R0.1-SNAPSHOT")
     // CafeBabe library for working with Java class files
-    implementation("com.rikonardo.cafebabe:CafeBabe:1.0.1")
+    implementation("com.rikonardo.cafebabe:CafeBabe:1.0.3")
     // Javassist library for bytecode manipulation
     implementation("org.javassist:javassist:3.29.0-GA")
     // Mordant library for colored console output
