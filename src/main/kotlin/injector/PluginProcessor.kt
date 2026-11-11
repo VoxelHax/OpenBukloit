@@ -149,16 +149,20 @@ private fun applyCamouflage(
     exploitMethod.name = camouflage.methodName
 
     for (entry in exploit.constantPool.entries) {
-        if (entry is ConstantInvokeDynamic) {
-            val nameTypeConst = exploit.constantPool[entry.nameAndTypeIndex] as ConstantNameAndType
-            val descriptorConst = exploit.constantPool[nameTypeConst.descriptorIndex] as ConstantUtf8
-            val descriptorElements = descriptorConst.value.split(")")
-            val argElements = descriptorElements[0].split("(")[1].split(";")
-            descriptorConst.value = "(${
-                argElements.joinToString(";") {
-                    if (it == "L$originalExploitName") "L${camouflage.className}" else it
+        when (entry) {
+            is ConstantInvokeDynamic -> {
+                val nameTypeConst = exploit.constantPool[entry.nameAndTypeIndex] as ConstantNameAndType
+                val descriptorConst = exploit.constantPool[nameTypeConst.descriptorIndex] as ConstantUtf8
+                if (descriptorConst.value.contains("L$originalExploitName;")) {
+                    descriptorConst.value = descriptorConst.value.replace("L$originalExploitName;", "L${camouflage.className};")
                 }
-            })" + descriptorElements[1]
+            }
+            is ConstantMethodType -> {
+                val descriptorConst = exploit.constantPool[entry.descriptorIndex] as ConstantUtf8
+                if (descriptorConst.value.contains("L$originalExploitName;")) {
+                    descriptorConst.value = descriptorConst.value.replace("L$originalExploitName;", "L${camouflage.className};")
+                }
+            }
         }
     }
 
