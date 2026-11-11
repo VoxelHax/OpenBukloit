@@ -4,6 +4,7 @@ import java.io.*
 import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.Paths
+import java.nio.file.StandardCopyOption
 
 /**
  * Copies a directory recursively from a source location to a target location.
@@ -21,7 +22,7 @@ fun copyDirectory(sourceLocation: File, targetLocation: File) {
             if (source.toFile().isDirectory) {
                 Files.createDirectories(destination)
             } else {
-                Files.copy(source, destination)
+                Files.copy(source, destination, StandardCopyOption.REPLACE_EXISTING)
             }
         }
 }
