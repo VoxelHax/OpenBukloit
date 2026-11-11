@@ -124,7 +124,16 @@ fun requireJDK(major: Int, minor: Int): Path {
     try {
         // Download the JDK binary
         Logs.info("Downloading JDK from $url to ${downloadedFilePath.toFile().canonicalPath}")
-        Files.copy(Yok.get(url).body.stream, downloadedFilePath)
+        val response = Yok.get(url)
+        if (response.status !in 200..299) {
+            val details = runCatching { response.body.text }.getOrNull()?.trim().orEmpty()
+            val message = if (details.isNotEmpty())
+                "JDK download failed with HTTP status ${response.status}: $details"
+            else
+                "JDK download failed with HTTP status ${response.status}"
+            throw Exception(message)
+        }
+        Files.copy(response.body.stream, downloadedFilePath)
 
         Logs.info("JDK $versionId downloaded, extracting to ${jdkDir.canonicalPath}...")
 
