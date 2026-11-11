@@ -24,13 +24,20 @@ fun run(args: Array<String>) {
     val className = findArg("class-name", null, args)
     val methodName = findArg("method-name", null, args)
 
+    val inputPath = Paths.get(input)
+    if (!Files.exists(inputPath)) throw Exception("Input path does not exist: $input")
+
     val inputFiles = if (mode == "multiple") {
-        val inputDir = Paths.get(input)
-        if (!Files.exists(inputDir)) throw Exception("Input directory does not exist: $input")
-        if (!Files.isDirectory(inputDir)) throw Exception("Input is not a directory: $input")
-        inputDir.toFile().listFiles()?.filter { it.extension == "jar" }?.map { it.toPath() } ?: emptyList()
+        if (!Files.isDirectory(inputPath)) throw Exception("Mode is 'multiple' but input '$input' is not a directory.")
+        inputPath.toFile().listFiles()?.filter { it.extension == "jar" }?.map { it.toPath() } ?: emptyList()
     } else {
-        listOf(Paths.get(input))
+        if (Files.isDirectory(inputPath)) throw Exception("Mode is 'single' but input '$input' is a directory.")
+        listOf(inputPath)
+    }
+
+    if (inputFiles.isEmpty()) {
+        Logs.warn("No JAR files found to process.")
+        return
     }
 
     val outputFiles = if (mode == "multiple") {
