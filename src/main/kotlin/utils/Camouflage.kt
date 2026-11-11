@@ -81,6 +81,10 @@ fun calculateCamouflage(file: File): Camouflage {
         }
     }
 
+    if (fileTree.isEmpty()) {
+        return Camouflage("Internal" + makeRandomLowerCaseString(5).replaceFirstChar { it.uppercase() }, "init")
+    }
+
     // Sort directories by the number of files they contain in descending order
     // and select one of the top directories to place the camouflaged class.
     val asList = fileTree.toList().sortedByDescending { it.second.size }
