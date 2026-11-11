@@ -42,6 +42,32 @@ fun getOsType(): String {
 }
 
 /**
+ * Determines the architecture of the operating system, not the architecture of the running JVM.
+ *
+ * A 32-bit JVM running on 64-bit Windows reports "x86" via os.arch, so the real OS architecture
+ * is read from the Windows environment instead.
+ *
+ * @param osType The current operating system type.
+ * @return The architecture name used by Adoptium (e.g., "x64", "x86", "aarch64").
+ */
+fun getOsArchitecture(osType: String): String {
+    val rawArchitecture = if (osType == "windows") {
+        System.getenv("PROCESSOR_ARCHITEW6432")?.takeIf { it.isNotBlank() }
+            ?: System.getenv("PROCESSOR_ARCHITECTURE")?.takeIf { it.isNotBlank() }
+            ?: System.getProperty("os.arch", "")
+    } else {
+        System.getProperty("os.arch", "")
+    }
+
+    return when (rawArchitecture.lowercase()) {
+        "x86_64", "amd64" -> "x64"
+        "x86", "i386", "i686" -> "x86"
+        "aarch64", "arm64" -> "aarch64"
+        else -> rawArchitecture.lowercase()
+    }
+}
+
+/**
  * Ensures that a compatible JDK is available for a given Java class file version.
  * If the JDK is not found locally, it attempts to download and install it from Adoptium.
  *
@@ -75,13 +101,7 @@ fun requireJDK(major: Int, minor: Int): Path {
     Logs.info("JDK $versionId not found at ${jdkDir.canonicalPath}, downloading (this may take some time)...")
 
     // Determine system architecture for download
-    var currentArchitecture = System.getProperty("os.arch").lowercase()
-    currentArchitecture = when (currentArchitecture) {
-        "x86_64", "amd64" -> "x64"
-        "i386" -> "x32"
-        "aarch64" -> "aarch64"
-        else -> currentArchitecture
-    }
+    var currentArchitecture = getOsArchitecture(currentOs)
 
     // Fallback cause Adoptium does not provide native macOS aarch64 builds for Java less than 11
     if (currentOs == "mac" && currentArchitecture == "aarch64" && major < 55) {
