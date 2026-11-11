@@ -221,7 +221,7 @@ fun injectFunc(clazz: String, method: String, insert: String, saveTo: String) {
     val cc = pool.get(clazz)
     try {
         val m = cc.getDeclaredMethod(method)
-        m.insertAfter(insert)
+        m.insertBefore(insert)
     } catch (e: javassist.NotFoundException) {
         // Create the onEnable method if it doesn't exist
         val newMethod = javassist.CtNewMethod.make(
