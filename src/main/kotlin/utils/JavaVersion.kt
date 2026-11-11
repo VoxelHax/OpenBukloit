@@ -67,6 +67,10 @@ fun getOsArchitecture(osType: String): String {
     }
 }
 
+private fun Path.ensureExecutable() {
+    if (getOsType() != "windows") toFile().setExecutable(true)
+}
+
 /**
  * Ensures that a compatible JDK is available for a given Java class file version.
  * If the JDK is not found locally, it attempts to download and install it from Adoptium.
@@ -94,6 +98,7 @@ fun requireJDK(major: Int, minor: Int): Path {
     }
 
     if (existingJavacPath.toFile().exists()) {
+        existingJavacPath.ensureExecutable()
         Logs.info("Found existing JDK $versionId at ${jdkDir.canonicalPath}")
         return existingJavacPath
     }
@@ -153,6 +158,7 @@ fun requireJDK(major: Int, minor: Int): Path {
 
         // Re-check for javac executable after extraction
         if (existingJavacPath.toFile().exists()) {
+            existingJavacPath.ensureExecutable()
             return existingJavacPath
         } else {
             throw Exception("JDK $versionId installed but 'javac' executable not found at expected location: ${existingJavacPath.toFile().canonicalPath}")
@@ -190,10 +196,12 @@ fun toJRE(jdkPath: Path): Path {
 
     val jrePath = Paths.get(binDirPath, "java")
     if (jrePath.toFile().exists()) {
+        jrePath.ensureExecutable()
         return jrePath
     }
     val jreExePath = Paths.get(binDirPath, "java.exe")
     if (jreExePath.toFile().exists()) {
+        jreExePath.ensureExecutable()
         return jreExePath
     }
     throw Exception("JRE executable ('java' or 'java.exe') not found in $binDirPath")
