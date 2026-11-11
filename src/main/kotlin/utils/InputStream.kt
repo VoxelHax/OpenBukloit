@@ -10,5 +10,5 @@ import java.io.InputStream
  * @return A ByteArray containing all bytes from the stream.
  */
 fun getBytesFromInputStream(stream: InputStream): ByteArray {
-    return stream.readBytes()
+    return stream.use { it.readBytes() }
 }
